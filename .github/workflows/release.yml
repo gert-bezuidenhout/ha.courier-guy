@@ -1,0 +1,38 @@
+name: Release
+on:
+  push:
+    branches: [main]
+    paths:
+      - custom_components/pudo/manifest.json
+      - .github/workflows/release.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pudo-release
+  cancel-in-progress: false
+jobs:
+  validate:
+    uses: ./.github/workflows/validate.yml
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Package and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(jq -r '.version' custom_components/pudo/manifest.json)
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test -s "docs/releases/$VERSION.md"
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists; leaving it unchanged."
+            exit 0
+          fi
+          zip -r "ha.courier-guy-$VERSION.zip" custom_components www README.md MIGRATION.md LICENSE docs -x '*/__pycache__/*' '*.pyc'
+          gh release create "$VERSION" "ha.courier-guy-$VERSION.zip" --target "$GITHUB_SHA" --title "The Courier Guy / PUDO $VERSION" --notes-file "docs/releases/$VERSION.md" --latest

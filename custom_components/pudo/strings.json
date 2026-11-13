@@ -1,0 +1,8 @@
+{
+  "title": "The Courier Guy / PUDO",
+  "config": {
+    "step": {"user": {"title": "Track a PUDO shipment", "description": "Enter a shipment waybill or parcel barcode. Public tracking requires no API key.", "data": {"reference_type": "Reference type", "reference": "Tracking reference"}}},
+    "error": {"cannot_connect": "Unable to reach the tracking service. Try again later.", "not_found": "No shipment was found for this reference.", "invalid_reference": "Enter a tracking reference."},
+    "abort": {"already_configured": "This reference is already configured."}
+  }
+}

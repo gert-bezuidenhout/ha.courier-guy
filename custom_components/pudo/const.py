@@ -1,0 +1,5 @@
+"""Constants for PUDO tracking."""
+DOMAIN = "pudo"
+BASE_URL = "https://api.portal.thecourierguy.co.za"
+CONF_REFERENCE = "reference"
+CONF_REFERENCE_TYPE = "reference_type"
