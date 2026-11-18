@@ -72,6 +72,14 @@ Recipient names, email addresses and phone numbers are not deliberately added as
 
 ## Updates and removal
 
+### Tracking notifications
+
+Version 0.4.0 emits `pudo_tracking_updated` only when a parcel's status or latest tracking event changes. It covers all configured waybills, including ones added later. Identical polling responses and initial startup do not emit events. Failed requests retain the previous successful snapshot; changes found after recovery are reported. Updates while Home Assistant is stopped become the startup baseline and are not reported retrospectively.
+
+Use [the notification automation](docs/examples/pudo-notification-automation.yaml) with your existing `script.notification_all`. Copy its contents into an automation's **Edit in YAML** editor. Adjust the notification action if you use a different script. Disable or replace any old automation listening to the global `state_changed` event; it wakes for unrelated changes throughout Home Assistant.
+
+Update the integration and restart before enabling the new automation. No dashboard update is required for this fix.
+
 Update through HACS and restart. Keep existing entries. Update card files separately from the release ZIP and refresh. See [MIGRATION.md](MIGRATION.md).
 
 To uninstall, remove tracked entries, uninstall in HACS, remove unused cards/resources and restart. Review automations using the removed sensors.

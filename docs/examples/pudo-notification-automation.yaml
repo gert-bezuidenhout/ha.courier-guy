@@ -1,0 +1,31 @@
+alias: Notification | PUDO Tracking
+description: Notify only when a tracked parcel changes
+triggers:
+  - trigger: event
+    event_type: pudo_tracking_updated
+conditions: []
+actions:
+  - variables:
+      notification_message: >-
+        {% set event = trigger.event.data %}
+        {% set timestamp = as_datetime(event.get('date'), none) %}
+        Parcel {{ event.reference }}:
+        {{ (event.get('latest_event') or event.get('status') or 'unknown')
+           | replace('-', ' ') | replace('_', ' ') | title }}.
+        {% if event.get('location') %}Location: {{ event.location }}.{% endif %}
+        {% if event.get('message') %}{{ event.message }}{% endif %}
+        {% if timestamp %}
+          Updated {{ as_local(timestamp).strftime('%d %b %Y at %H:%M') }}.
+        {% endif %}
+  - action: script.notification_all
+    data:
+      message: "{{ notification_message }}"
+      tts_enabled: true
+      tts_importance: low
+      whatsapp_gert: false
+      whatsapp_letitia: false
+      tts_language: en-GB
+      tts_voice: RyanNeural
+      volume_level: 0.5
+mode: queued
+max: 20
