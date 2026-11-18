@@ -48,7 +48,7 @@ async function run(result, admin = true) {
   }, user: { is_admin: false } };
   const row = container.children[0];
   assert.equal(row.children[0].children[0].children[1].textContent, 'EXAMPLE');
-  assert.equal(row.children[0].children[1].textContent, 'Collected');
+  assert.equal(row.children[0].children[1].children[0].textContent, 'Collected');
   const route = row.children[1];
   assert.equal(route.children[0].children[0].textContent, 'Collection Hub');
   assert.equal(route.children[0].children[1].textContent, 'JNB');
@@ -57,12 +57,12 @@ async function run(result, admin = true) {
   assert.equal(route.children[2].children[1].textContent, 'PTA');
   assert.equal(row.children[2].children[0].textContent, 'Current location:');
   assert.equal(row.children[2].children[1].textContent, 'JNB');
-  assert.equal(row.children.at(-1).children.length, 1); // Non-admin sees logo only.
+  assert.equal(row.children[0].children[1].children.length, 1); // Non-admin sees status only.
   display._hass.user.is_admin = true;
   display._hass.states['sensor.example_status'].attributes.delivery_hub = null;
   display._renderShipments();
   assert.equal(container.children[0].children[1].children[2].children[1].textContent, '—');
-  assert.equal(container.children[0].children.at(-1).children[1].textContent, 'Remove');
+  assert.equal(container.children[0].children[0].children[1].children[1].textContent, 'Remove');
   display.preview = true;
   await display._track();
   await display._remove({}, {});

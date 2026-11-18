@@ -7,10 +7,9 @@ class PudoTrackingCard extends HTMLElement {
       <style>
         :host{display:block}ha-card{display:block;border-radius:9px;overflow:hidden}
         .body{padding:18px 20px;color:var(--primary-text-color,#151515)}
-        .card-heading{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-        .pin{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:50%;background:#e9ecf5;color:#2b4b98}
-        .pin svg{width:18px;height:18px}h3{font-size:17px;font-weight:700;margin:0}
-        img{display:block;width:120px;max-width:100%;margin:20px auto 0}
+        .card-heading{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+        .card-heading img{display:block;width:105px;max-width:35%;height:auto;flex:none}
+        h3{font-size:17px;font-weight:700;margin:0}
         form{display:grid;gap:12px}.kind{display:grid;gap:6px;font-size:13px}.kind[hidden]{display:none}
         .search{display:flex;align-items:center;gap:10px;border:1px solid var(--divider-color,#d2d7e3);border-radius:28px;padding:6px;box-shadow:0 1px 2px #0000000c}
         .search svg{width:19px;height:19px;flex:none;margin-left:10px;color:var(--secondary-text-color,#333)}
@@ -19,8 +18,10 @@ class PudoTrackingCard extends HTMLElement {
         .search:focus-within{outline:2px solid #284795;outline-offset:2px}input::placeholder{color:var(--secondary-text-color,#8290ac)}
         select{padding:8px;border-radius:8px;background:var(--card-background-color,white);color:inherit;border:1px solid var(--divider-color,#ddd)}
         button{border:0;border-radius:22px;padding:7px 19px;background:#2b4b98;color:white;cursor:pointer;font-size:14px;font-weight:600}button:disabled{opacity:.55;cursor:wait}
-        .shipment{border-top:1px solid var(--divider-color,#ddd);padding-top:12px;margin-top:12px}
-        .shipment-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+        .shipments{display:grid;gap:14px;margin-top:14px}.shipments:empty{display:none}
+        .shipment{box-sizing:border-box;min-width:0;border:1px solid var(--divider-color,#ddd);border-left:3px solid var(--primary-color,#2b4b98);border-radius:10px;padding:14px;background:color-mix(in srgb,var(--primary-text-color,#151515) 3%,var(--card-background-color,#fff))}
+        .shipment-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin-bottom:10px}
+        .shipment-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;margin-left:auto}
         .reference{display:flex;flex-direction:column;gap:2px;min-width:0}.reference strong{overflow-wrap:anywhere}
         .reference-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--secondary-text-color,#666)}
         .status{font-size:12px;font-weight:600;border-radius:20px;padding:4px 11px;background:var(--secondary-background-color,#eef2fa);color:var(--primary-text-color,#284795);text-align:center}
@@ -29,22 +30,20 @@ class PudoTrackingCard extends HTMLElement {
         .arrow{text-align:center;font-size:20px;color:var(--secondary-text-color,#666)}
         .location{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;margin-bottom:8px}.location-label{color:var(--secondary-text-color,#666)}
         .dates{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:5px 14px;margin:0;font-size:13px}.dates dt{color:var(--secondary-text-color,#666)}.dates dd{margin:0;overflow-wrap:anywhere}
-        .shipment-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px}.shipment-footer img{margin:0;width:90px}
-        .shipments:not(:empty)+.empty-logo{display:none}
         .remove{background:transparent;color:var(--error-color,#db6262);border:1px solid var(--divider-color,#555);font-size:12px;padding:6px 10px}
         .event-message{color:var(--secondary-text-color,#666);white-space:pre-line;font-size:13px;margin-bottom:8px;overflow-wrap:anywhere}
         .message{margin:8px 0;font-size:13px;line-height:1.5}.message:empty{display:none}
         @media(max-width:360px){.body{padding:16px}.search{gap:6px}button{padding:8px 14px}}
       </style>
       <ha-card><div class="body">
-      <div class="card-heading"><div class="pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 0 0-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 0 0-8-8Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg></div>
+      <div class="card-heading"><img alt="The Courier Guy">
       <h3>Track your parcel</h3></div>
       <form><label class="kind" hidden>Reference type<select name="kind"><option value="waybill">Shipment waybill</option>
       <option value="tracking_reference">Parcel barcode</option></select></label>
       <div class="search"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
       <input aria-label="Waybill or parcel barcode" name="reference" required maxlength="150" autocomplete="off" placeholder="e.g. ABCDE123">
       <button type="submit">Track</button></div></form>
-      <div class="message" role="status" aria-live="polite"></div><div class="shipments"></div><img class="empty-logo" alt="The Courier Guy"></div></ha-card>`;
+      <div class="message" role="status" aria-live="polite"></div><div class="shipments"></div></div></ha-card>`;
     this.shadowRoot.querySelector(".kind").hidden = !config.show_reference_type;
     this.shadowRoot.querySelector("select").value = config.reference_type === "tracking_reference" ? "tracking_reference" : "waybill";
     this.shadowRoot.querySelector("img").src = config.logo || "/pudo_static/tcg-logo.svg";
@@ -170,7 +169,9 @@ class PudoTrackingCard extends HTMLElement {
       const reference = document.createElement("div"); reference.className = "reference";
       reference.append(text("span", "Tracking reference", "reference-label"), text("strong", attrs.pudo_reference));
       const header = document.createElement("div"); header.className = "shipment-header";
-      header.append(reference, text("span", this._formatStatus(shipment.state), "status"));
+      const actions = document.createElement("div"); actions.className = "shipment-actions";
+      actions.append(text("span", this._formatStatus(shipment.state), "status"));
+      header.append(reference, actions);
       const route = document.createElement("div"); route.className = "route";
       for (const [label, code] of [["Collection Hub", attrs.collection_hub], ["Delivery Hub", attrs.delivery_hub]]) {
         if (route.childNodes.length) route.append(text("span", "→", "arrow"));
@@ -187,18 +188,14 @@ class PudoTrackingCard extends HTMLElement {
       row.append(header, route, location);
       if (event?.attributes.message) row.append(text("div", event.attributes.message, "event-message"));
       row.append(dates);
-      const footer = document.createElement("div"); footer.className = "shipment-footer";
-      const logo = document.createElement("img"); logo.alt = "The Courier Guy";
-      logo.src = this._config?.logo || "/pudo_static/tcg-logo.svg";
-      footer.append(logo);
       if (this._hass.user?.is_admin) {
         const remove = document.createElement("button"); remove.type = "button";
         remove.className = "remove"; remove.textContent = "Remove";
         remove.setAttribute("aria-label", `Remove ${attrs.pudo_reference} from tracking`);
         remove.addEventListener("click", () => this._remove(shipment, remove));
-        footer.append(remove);
+        actions.append(remove);
       }
-      row.append(footer); container.append(row);
+      container.append(row);
     }
   }
 }
