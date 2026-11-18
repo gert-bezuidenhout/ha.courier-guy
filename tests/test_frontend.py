@@ -14,7 +14,7 @@ class FrontendTests(unittest.IsolatedAsyncioTestCase):
         http = types.ModuleType("homeassistant.components.http")
         http.StaticPathConfig = lambda url, path, cache: (url, path, cache)
         loader = types.ModuleType("homeassistant.loader")
-        loader.async_get_integration = AsyncMock(return_value=types.SimpleNamespace(version="0.5.1"))
+        loader.async_get_integration = AsyncMock(return_value=types.SimpleNamespace(version="0.5.2"))
         components = types.ModuleType("homeassistant.components")
         components.frontend = frontend
         with patch.dict(sys.modules, {
@@ -29,7 +29,7 @@ class FrontendTests(unittest.IsolatedAsyncioTestCase):
             spec.loader.exec_module(module)
             hass = types.SimpleNamespace(http=types.SimpleNamespace(async_register_static_paths=AsyncMock()))
             await module.async_register_frontend(hass)
-            add_module.assert_called_once_with(hass, "/pudo_static/pudo-tracking-card.js?v=0.5.1")
+            add_module.assert_called_once_with(hass, "/pudo_static/pudo-tracking-card.js?v=0.5.2")
             configs = hass.http.async_register_static_paths.call_args.args[0]
             self.assertEqual(configs[0][0], "/pudo_static")
             self.assertFalse(configs[0][2])

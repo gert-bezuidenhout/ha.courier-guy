@@ -6,10 +6,10 @@ class PudoTrackingCard extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host{display:block}ha-card{display:block;border-radius:9px;overflow:hidden}
-        .body{padding:40px 34px 24px;color:var(--primary-text-color,#151515)}
-        .pin{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#e9ecf5;color:#2b4b98;margin:0 auto 18px}
-        .pin svg{width:25px;height:25px}h3{text-align:center;font-size:19px;font-weight:700;margin:0 0 8px}
-        .intro{text-align:center;font-size:13px;line-height:1.4;margin:0 auto 22px;max-width:350px;color:var(--secondary-text-color,#3f4b68)}
+        .body{padding:18px 20px;color:var(--primary-text-color,#151515)}
+        .card-heading{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+        .pin{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:50%;background:#e9ecf5;color:#2b4b98}
+        .pin svg{width:18px;height:18px}h3{font-size:17px;font-weight:700;margin:0}
         img{display:block;width:120px;max-width:100%;margin:20px auto 0}
         form{display:grid;gap:12px}.kind{display:grid;gap:6px;font-size:13px}.kind[hidden]{display:none}
         .search{display:flex;align-items:center;gap:10px;border:1px solid var(--divider-color,#d2d7e3);border-radius:28px;padding:6px;box-shadow:0 1px 2px #0000000c}
@@ -19,26 +19,26 @@ class PudoTrackingCard extends HTMLElement {
         .search:focus-within{outline:2px solid #284795;outline-offset:2px}input::placeholder{color:var(--secondary-text-color,#8290ac)}
         select{padding:8px;border-radius:8px;background:var(--card-background-color,white);color:inherit;border:1px solid var(--divider-color,#ddd)}
         button{border:0;border-radius:22px;padding:7px 19px;background:#2b4b98;color:white;cursor:pointer;font-size:14px;font-weight:600}button:disabled{opacity:.55;cursor:wait}
-        .shipment{border-top:1px solid var(--divider-color,#ddd);padding-top:20px;margin-top:20px}
-        .shipment-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-        .reference{display:flex;flex-direction:column;gap:5px;min-width:0}.reference strong{overflow-wrap:anywhere}
+        .shipment{border-top:1px solid var(--divider-color,#ddd);padding-top:12px;margin-top:12px}
+        .shipment-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+        .reference{display:flex;flex-direction:column;gap:2px;min-width:0}.reference strong{overflow-wrap:anywhere}
         .reference-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--secondary-text-color,#666)}
         .status{font-size:12px;font-weight:600;border-radius:20px;padding:4px 11px;background:var(--secondary-background-color,#eef2fa);color:var(--primary-text-color,#284795);text-align:center}
-        .route{display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);align-items:center;gap:12px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--divider-color,#ddd)}
-        .hub:last-child{text-align:right}.hub-label{font-size:12px;color:var(--secondary-text-color,#666);margin-bottom:3px}.hub-code{font-size:23px;font-weight:600;overflow-wrap:anywhere}
-        .arrow{text-align:center;font-size:23px;color:var(--secondary-text-color,#666)}
-        .location{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;margin-bottom:16px}.location-label{color:var(--secondary-text-color,#666)}
-        .dates{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 18px;margin:0;font-size:13px}.dates dt{color:var(--secondary-text-color,#666)}.dates dd{margin:0;overflow-wrap:anywhere}
-        .shipment-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px}.shipment-footer img{margin:0;width:115px}
+        .route{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--divider-color,#ddd)}
+        .hub:last-child{text-align:right}.hub-label{font-size:12px;color:var(--secondary-text-color,#666);margin-bottom:2px}.hub-code{font-size:20px;font-weight:600;overflow-wrap:anywhere}
+        .arrow{text-align:center;font-size:20px;color:var(--secondary-text-color,#666)}
+        .location{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;margin-bottom:8px}.location-label{color:var(--secondary-text-color,#666)}
+        .dates{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:5px 14px;margin:0;font-size:13px}.dates dt{color:var(--secondary-text-color,#666)}.dates dd{margin:0;overflow-wrap:anywhere}
+        .shipment-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px}.shipment-footer img{margin:0;width:90px}
         .shipments:not(:empty)+.empty-logo{display:none}
         .remove{background:transparent;color:var(--error-color,#db6262);border:1px solid var(--divider-color,#555);font-size:12px;padding:6px 10px}
-        .event-message{color:var(--secondary-text-color,#666);white-space:pre-line;font-size:13px;margin-bottom:16px;overflow-wrap:anywhere}
-        .message{margin:12px 0;font-size:13px;line-height:1.5}.message:empty{display:none}
-        @media(max-width:360px){.body{padding:28px 18px 20px}.search{gap:6px}button{padding:8px 14px}}
+        .event-message{color:var(--secondary-text-color,#666);white-space:pre-line;font-size:13px;margin-bottom:8px;overflow-wrap:anywhere}
+        .message{margin:8px 0;font-size:13px;line-height:1.5}.message:empty{display:none}
+        @media(max-width:360px){.body{padding:16px}.search{gap:6px}button{padding:8px 14px}}
       </style>
       <ha-card><div class="body">
-      <div class="pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 0 0-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 0 0-8-8Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg></div>
-      <h3>Track your parcel</h3><p class="intro">Enter your tracking reference to see the latest status of your shipment.</p>
+      <div class="card-heading"><div class="pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 0 0-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 0 0-8-8Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg></div>
+      <h3>Track your parcel</h3></div>
       <form><label class="kind" hidden>Reference type<select name="kind"><option value="waybill">Shipment waybill</option>
       <option value="tracking_reference">Parcel barcode</option></select></label>
       <div class="search"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
