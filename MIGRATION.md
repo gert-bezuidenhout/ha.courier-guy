@@ -1,5 +1,9 @@
 # Updating The Courier Guy / PUDO
 
+## From 0.5.0 to 0.5.1
+
+Update through HACS, restart Home Assistant and refresh your browser or Companion app. The dashboard now uses the approved Route layout with prominent hub codes, a directional arrow, status badge, current location and labeled dates. Keep existing card YAML, resources and shipments; no manual resource URL changes are needed.
+
 ## From 0.4.x to 0.5.0
 
 Update through HACS, restart Home Assistant and refresh your browser or Companion app. Existing dashboard YAML, shipments and sensors remain valid. The frontend module and logo are now included in `custom_components/pudo/www` and registered automatically, with cache versioning tied to the integration release. Do not copy new dashboard files or change Resource URLs.

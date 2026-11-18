@@ -46,9 +46,23 @@ async function run(result, admin = true) {
     'sensor.example_status': { state: 'collected', attributes: { pudo_role: 'status', pudo_reference: 'EXAMPLE', collection_hub: 'JNB', delivery_hub: 'PTA' } },
     'sensor.example_latest_event': { state: 'collected', attributes: { pudo_role: 'latest_event', pudo_reference: 'EXAMPLE', location: 'JNB' } },
   }, user: { is_admin: false } };
-  assert.match(container.children[0].children[1].textContent, /Location: JNB/);
-  assert.match(container.children[0].children[1].textContent, /Collection Hub: JNB/);
-  assert.match(container.children[0].children[1].textContent, /Delivery Hub: PTA/);
+  const row = container.children[0];
+  assert.equal(row.children[0].children[0].children[1].textContent, 'EXAMPLE');
+  assert.equal(row.children[0].children[1].textContent, 'Collected');
+  const route = row.children[1];
+  assert.equal(route.children[0].children[0].textContent, 'Collection Hub');
+  assert.equal(route.children[0].children[1].textContent, 'JNB');
+  assert.equal(route.children[1].textContent, '→');
+  assert.equal(route.children[2].children[0].textContent, 'Delivery Hub');
+  assert.equal(route.children[2].children[1].textContent, 'PTA');
+  assert.equal(row.children[2].children[0].textContent, 'Current location:');
+  assert.equal(row.children[2].children[1].textContent, 'JNB');
+  assert.equal(row.children.at(-1).children.length, 1); // Non-admin sees logo only.
+  display._hass.user.is_admin = true;
+  display._hass.states['sensor.example_status'].attributes.delivery_hub = null;
+  display._renderShipments();
+  assert.equal(container.children[0].children[1].children[2].children[1].textContent, '—');
+  assert.equal(container.children[0].children.at(-1).children[1].textContent, 'Remove');
   display.preview = true;
   await display._track();
   await display._remove({}, {});

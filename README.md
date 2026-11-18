@@ -44,7 +44,7 @@ type: custom:pudo-tracking-card
 
 As an administrator, enter a waybill and press **Track**. This creates the integration entry and sensors automatically. All cards show the same tracked shipments; do not add the same reference again through Settings.
 
-Shipment details explicitly label **Location**, **Collection Hub** and **Delivery Hub**. Optional settings: `show_reference_type: true` shows the type selector; `reference_type: tracking_reference` defaults to parcel barcodes; `logo` overrides the bundled logo URL.
+Shipment details show a route from **Collection Hub → Delivery Hub**, with hub codes prominently displayed, a separate status badge, current location and readable dates. Each shipment has its own logo and administrator-only Remove action. Optional settings: `show_reference_type: true` shows the type selector; `reference_type: tracking_reference` defaults to parcel barcodes; `logo` overrides the bundled logo URL.
 
 **Remove** asks for confirmation and deletes the Home Assistant entry and sensors from all cards. It does not cancel the courier shipment. Non-administrators can view existing data.
 

@@ -19,10 +19,20 @@ class PudoTrackingCard extends HTMLElement {
         .search:focus-within{outline:2px solid #284795;outline-offset:2px}input::placeholder{color:var(--secondary-text-color,#8290ac)}
         select{padding:8px;border-radius:8px;background:var(--card-background-color,white);color:inherit;border:1px solid var(--divider-color,#ddd)}
         button{border:0;border-radius:22px;padding:7px 19px;background:#2b4b98;color:white;cursor:pointer;font-size:14px;font-weight:600}button:disabled{opacity:.55;cursor:wait}
-        .shipment{border-top:1px solid var(--divider-color,#ddd);padding-top:14px;margin-top:14px}
-        .shipment-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+        .shipment{border-top:1px solid var(--divider-color,#ddd);padding-top:20px;margin-top:20px}
+        .shipment-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+        .reference{display:flex;flex-direction:column;gap:5px;min-width:0}.reference strong{overflow-wrap:anywhere}
+        .reference-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--secondary-text-color,#666)}
+        .status{font-size:12px;font-weight:600;border-radius:20px;padding:4px 11px;background:var(--secondary-background-color,#eef2fa);color:var(--primary-text-color,#284795);text-align:center}
+        .route{display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);align-items:center;gap:12px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--divider-color,#ddd)}
+        .hub:last-child{text-align:right}.hub-label{font-size:12px;color:var(--secondary-text-color,#666);margin-bottom:3px}.hub-code{font-size:23px;font-weight:600;overflow-wrap:anywhere}
+        .arrow{text-align:center;font-size:23px;color:var(--secondary-text-color,#666)}
+        .location{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;margin-bottom:16px}.location-label{color:var(--secondary-text-color,#666)}
+        .dates{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 18px;margin:0;font-size:13px}.dates dt{color:var(--secondary-text-color,#666)}.dates dd{margin:0;overflow-wrap:anywhere}
+        .shipment-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px}.shipment-footer img{margin:0;width:115px}
+        .shipments:not(:empty)+.empty-logo{display:none}
         .remove{background:transparent;color:var(--error-color,#db6262);border:1px solid var(--divider-color,#555);font-size:12px;padding:6px 10px}
-        .details{color:var(--secondary-text-color,#666);white-space:pre-line;margin-top:6px}
+        .event-message{color:var(--secondary-text-color,#666);white-space:pre-line;font-size:13px;margin-bottom:16px;overflow-wrap:anywhere}
         .message{margin:12px 0;font-size:13px;line-height:1.5}.message:empty{display:none}
         @media(max-width:360px){.body{padding:28px 18px 20px}.search{gap:6px}button{padding:8px 14px}}
       </style>
@@ -34,7 +44,7 @@ class PudoTrackingCard extends HTMLElement {
       <div class="search"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>
       <input aria-label="Waybill or parcel barcode" name="reference" required maxlength="150" autocomplete="off" placeholder="e.g. ABCDE123">
       <button type="submit">Track</button></div></form>
-      <div class="message" role="status" aria-live="polite"></div><div class="shipments"></div><img alt="The Courier Guy"></div></ha-card>`;
+      <div class="message" role="status" aria-live="polite"></div><div class="shipments"></div><img class="empty-logo" alt="The Courier Guy"></div></ha-card>`;
     this.shadowRoot.querySelector(".kind").hidden = !config.show_reference_type;
     this.shadowRoot.querySelector("select").value = config.reference_type === "tracking_reference" ? "tracking_reference" : "waybill";
     this.shadowRoot.querySelector("img").src = config.logo || "/pudo_static/tcg-logo.svg";
@@ -151,28 +161,44 @@ class PudoTrackingCard extends HTMLElement {
       const attrs = shipment.attributes;
       const event = states.find(s => s.attributes.pudo_role === "latest_event" && s.attributes.pudo_reference === attrs.pudo_reference);
       const row = document.createElement("div"); row.className = "shipment";
-      const title = document.createElement("strong");
-      title.textContent = `${attrs.pudo_reference} · ${this._formatStatus(shipment.state)}`;
-      const details = document.createElement("div"); details.className = "details";
-      details.textContent = [
-        event?.attributes.location ? `Location: ${event.attributes.location}` : "",
-        attrs.collection_hub ? `Collection Hub: ${attrs.collection_hub}` : "",
-        attrs.delivery_hub ? `Delivery Hub: ${attrs.delivery_hub}` : "",
-        event?.attributes.message,
-        event?.attributes.date ? `Latest update: ${this._formatDate(event.attributes.date)}` : "",
-        attrs.shipment_collected_date ? `Collected: ${this._formatDate(attrs.shipment_collected_date)}` : "",
-        attrs.shipment_delivered_date ? `Delivered: ${this._formatDate(attrs.shipment_delivered_date)}` : "",
-      ].filter(Boolean).join("\n");
+      const text = (tag, value, className) => {
+        const node = document.createElement(tag);
+        node.textContent = value;
+        if (className) node.className = className;
+        return node;
+      };
+      const reference = document.createElement("div"); reference.className = "reference";
+      reference.append(text("span", "Tracking reference", "reference-label"), text("strong", attrs.pudo_reference));
       const header = document.createElement("div"); header.className = "shipment-header";
-      header.append(title);
+      header.append(reference, text("span", this._formatStatus(shipment.state), "status"));
+      const route = document.createElement("div"); route.className = "route";
+      for (const [label, code] of [["Collection Hub", attrs.collection_hub], ["Delivery Hub", attrs.delivery_hub]]) {
+        if (route.childNodes.length) route.append(text("span", "→", "arrow"));
+        const hub = document.createElement("div"); hub.className = "hub";
+        hub.append(text("div", label, "hub-label"), text("div", code || "—", "hub-code"));
+        route.append(hub);
+      }
+      const location = document.createElement("div"); location.className = "location";
+      location.append(text("span", "Current location:", "location-label"), text("strong", event?.attributes.location || "—"));
+      const dates = document.createElement("dl"); dates.className = "dates";
+      for (const [label, value] of [["Latest update", event?.attributes.date], ["Collected", attrs.shipment_collected_date], ["Delivered", attrs.shipment_delivered_date]]) {
+        if (value) dates.append(text("dt", label), text("dd", this._formatDate(value)));
+      }
+      row.append(header, route, location);
+      if (event?.attributes.message) row.append(text("div", event.attributes.message, "event-message"));
+      row.append(dates);
+      const footer = document.createElement("div"); footer.className = "shipment-footer";
+      const logo = document.createElement("img"); logo.alt = "The Courier Guy";
+      logo.src = this._config?.logo || "/pudo_static/tcg-logo.svg";
+      footer.append(logo);
       if (this._hass.user?.is_admin) {
         const remove = document.createElement("button"); remove.type = "button";
         remove.className = "remove"; remove.textContent = "Remove";
         remove.setAttribute("aria-label", `Remove ${attrs.pudo_reference} from tracking`);
         remove.addEventListener("click", () => this._remove(shipment, remove));
-        header.append(remove);
+        footer.append(remove);
       }
-      row.append(header, details); container.append(row);
+      row.append(footer); container.append(row);
     }
   }
 }
