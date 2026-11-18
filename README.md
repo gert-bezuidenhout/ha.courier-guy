@@ -25,17 +25,18 @@ Default catalogue submission remains deferred. Install as a custom repository:
 2. Open HACS > menu > **Custom repositories**.
 3. Add `https://github.com/gert-bezuidenhout/ha.courier-guy` with type **Integration**.
 4. Download **The Courier Guy / PUDO** and restart Home Assistant.
-5. Install the card below, or add a shipment through **Settings > Devices & services > Add integration > The Courier Guy / PUDO**.
+5. Open **Settings > Devices & services > Add integration > The Courier Guy / PUDO**. Enter a shipment, or leave the tracking reference blank to activate the dashboard without adding a parcel.
 
-If your Marketplace offers **Add from a GitHub link**, use the same URL. No configuration.yaml changes are required. HACS installs only the integration, not the card.
+If your Marketplace offers **Add from a GitHub link**, use the same URL. No configuration.yaml changes are required. HACS includes the dashboard module and logo inside the integration.
 
 ## Dashboard card
 
-1. Download the installation ZIP from the [latest release](https://github.com/gert-bezuidenhout/ha.courier-guy/releases/latest).
-2. Copy `www/pudo/` from the ZIP to `/config/www/pudo/`, including JavaScript and logo. Restart if creating `/config/www/` for the first time.
-3. Enable **Advanced mode** in your profile. Open **Settings > Dashboards > menu > Resources**.
-4. Add `/local/pudo/pudo-tracking-card.js?v=0.3.1` as a **JavaScript module**. Edit an existing PUDO resource rather than adding a duplicate.
-5. Add a **Manual** card:
+The integration automatically serves and registers its frontend module. No Resources entry, file copy to `www`, or manual version URL is needed.
+
+1. Configure the integration as described above, then refresh your browser or Companion app.
+2. Edit a dashboard and choose **Add card**.
+3. Search for **The Courier Guy / PUDO**. The selector shows a live card preview.
+4. Select it and save. Alternatively add a **Manual** card:
 
 ```yaml
 type: custom:pudo-tracking-card
@@ -43,7 +44,7 @@ type: custom:pudo-tracking-card
 
 As an administrator, enter a waybill and press **Track**. This creates the integration entry and sensors automatically. All cards show the same tracked shipments; do not add the same reference again through Settings.
 
-Optional settings: `show_reference_type: true` shows the type selector; `reference_type: tracking_reference` defaults to parcel barcodes; `logo` overrides the local logo URL.
+Shipment details explicitly label **Location**, **Collection Hub** and **Delivery Hub**. Optional settings: `show_reference_type: true` shows the type selector; `reference_type: tracking_reference` defaults to parcel barcodes; `logo` overrides the bundled logo URL.
 
 **Remove** asks for confirmation and deletes the Home Assistant entry and sensors from all cards. It does not cancel the courier shipment. Non-administrators can view existing data.
 
@@ -67,8 +68,8 @@ Recipient names, email addresses and phone numbers are not deliberately added as
 - **Not found:** check the reference/type. Collection-code support is not guaranteed.
 - **Already configured:** use the existing shipment entry.
 - **Unavailable:** check connectivity and retry later; the public portal endpoint can change.
-- **Custom element doesn't exist:** check the JavaScript module resource and refresh the browser or Companion app.
-- **Logo missing:** copy `tcg-logo.svg` alongside the card. Local integration branding requires Home Assistant 2026.3 or newer.
+- **Custom element doesn't exist:** ensure at least one PUDO integration entry exists (a blank-reference Dashboard entry is sufficient), then refresh the browser or Companion app after restart.
+- **Logo missing:** reinstall the integration including its bundled `www` folder. Local integration branding requires Home Assistant 2026.3 or newer.
 
 ## Updates and removal
 
@@ -80,7 +81,7 @@ Use [the notification automation](docs/examples/pudo-notification-automation.yam
 
 Update the integration and restart before enabling the new automation. No dashboard update is required for this fix.
 
-Update through HACS and restart. Keep existing entries. Update card files separately from the release ZIP and refresh. See [MIGRATION.md](MIGRATION.md).
+Update through HACS and restart, then refresh your browser. Keep existing entries. Card updates and cache versioning are managed by the integration automatically. Legacy `/local/pudo/pudo-tracking-card.js` resources may be removed as optional cleanup; no edits to them are required. See [MIGRATION.md](MIGRATION.md).
 
 To uninstall, remove tracked entries, uninstall in HACS, remove unused cards/resources and restart. Review automations using the removed sensors.
 

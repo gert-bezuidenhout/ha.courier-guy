@@ -37,7 +37,7 @@ class PudoTrackingCard extends HTMLElement {
       <div class="message" role="status" aria-live="polite"></div><div class="shipments"></div><img alt="The Courier Guy"></div></ha-card>`;
     this.shadowRoot.querySelector(".kind").hidden = !config.show_reference_type;
     this.shadowRoot.querySelector("select").value = config.reference_type === "tracking_reference" ? "tracking_reference" : "waybill";
-    this.shadowRoot.querySelector("img").src = config.logo || "/local/pudo/tcg-logo.svg";
+    this.shadowRoot.querySelector("img").src = config.logo || "/pudo_static/tcg-logo.svg";
     this.shadowRoot.querySelector("form").addEventListener("submit", (event) => {
       event.preventDefault();
       this._track();
@@ -70,6 +70,7 @@ class PudoTrackingCard extends HTMLElement {
   }
 
   async _track() {
+    if (this.preview) return;
     if (this._busy || !this._hass) return;
     const root = this.shadowRoot;
     const reference = root.querySelector("input").value.trim();
@@ -117,6 +118,7 @@ class PudoTrackingCard extends HTMLElement {
   }
 
   async _remove(shipment, button) {
+    if (this.preview) return;
     if (!this._hass.user?.is_admin || button.disabled) return;
     const reference = shipment.attributes.pudo_reference;
     if (!window.confirm(`Remove ${reference} from Home Assistant? This deletes its tracking sensors. It does not cancel the shipment.`)) return;
@@ -152,8 +154,11 @@ class PudoTrackingCard extends HTMLElement {
       const title = document.createElement("strong");
       title.textContent = `${attrs.pudo_reference} · ${this._formatStatus(shipment.state)}`;
       const details = document.createElement("div"); details.className = "details";
-      details.textContent = [attrs.collection_hub && attrs.delivery_hub ? `${attrs.collection_hub} → ${attrs.delivery_hub}` : "",
-        event?.attributes.message, event?.attributes.location,
+      details.textContent = [
+        event?.attributes.location ? `Location: ${event.attributes.location}` : "",
+        attrs.collection_hub ? `Collection Hub: ${attrs.collection_hub}` : "",
+        attrs.delivery_hub ? `Delivery Hub: ${attrs.delivery_hub}` : "",
+        event?.attributes.message,
         event?.attributes.date ? `Latest update: ${this._formatDate(event.attributes.date)}` : "",
         attrs.shipment_collected_date ? `Collected: ${this._formatDate(attrs.shipment_collected_date)}` : "",
         attrs.shipment_delivered_date ? `Delivered: ${this._formatDate(attrs.shipment_delivered_date)}` : "",
@@ -171,6 +176,21 @@ class PudoTrackingCard extends HTMLElement {
     }
   }
 }
-if (!customElements.get("pudo-tracking-card")) customElements.define("pudo-tracking-card", PudoTrackingCard);
+const existingPudoCard = customElements.get("pudo-tracking-card");
+if (!existingPudoCard) {
+  customElements.define("pudo-tracking-card", PudoTrackingCard);
+} else {
+  // An old /local resource may still be configured. Upgrade its methods so it
+  // cannot shadow the integration-managed card when it loads first.
+  for (const name of Object.getOwnPropertyNames(PudoTrackingCard.prototype)) {
+    if (name !== "constructor") Object.defineProperty(existingPudoCard.prototype, name,
+      Object.getOwnPropertyDescriptor(PudoTrackingCard.prototype, name));
+  }
+}
 window.customCards = window.customCards || [];
-window.customCards.push({ type: "pudo-tracking-card", name: "The Courier Guy / PUDO", description: "Enter a waybill and track your parcels." });
+window.customCards = window.customCards.filter(card => card.type !== "pudo-tracking-card");
+window.customCards.push({
+  type: "pudo-tracking-card", name: "The Courier Guy / PUDO",
+  description: "Enter a waybill and track your parcels.", preview: true,
+  documentationURL: "https://github.com/gert-bezuidenhout/ha.courier-guy",
+});

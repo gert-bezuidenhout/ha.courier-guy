@@ -1,5 +1,13 @@
 # Updating The Courier Guy / PUDO
 
+## From 0.4.x to 0.5.0
+
+Update through HACS, restart Home Assistant and refresh your browser or Companion app. Existing dashboard YAML, shipments and sensors remain valid. The frontend module and logo are now included in `custom_components/pudo/www` and registered automatically, with cache versioning tied to the integration release. Do not copy new dashboard files or change Resource URLs.
+
+Old `/local/pudo/pudo-tracking-card.js` resource entries may remain; the managed module upgrades the existing card definition if an older script loads first. Removing old resources is optional cleanup. The integration must have at least one entry to load on startup. New users can submit a blank tracking reference to create a Dashboard entry, then add parcels from the card.
+
+The card selector now shows a live preview, and shipment details label Location, Collection Hub and Delivery Hub explicitly.
+
 ## From 0.3.x to 0.4.0
 
 Update through HACS and restart Home Assistant. Keep existing entries, sensors and dashboard files.

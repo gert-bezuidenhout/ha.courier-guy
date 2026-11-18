@@ -13,10 +13,12 @@ class PudoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         errors = {}
         if user_input is not None:
-            reference = user_input[CONF_REFERENCE].strip()
+            reference = user_input.get(CONF_REFERENCE, "").strip()
             kind = user_input[CONF_REFERENCE_TYPE]
             if not reference:
-                errors[CONF_REFERENCE] = "invalid_reference"
+                await self.async_set_unique_id("pudo_dashboard")
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(title="PUDO Dashboard", data={})
             else:
                 await self.async_set_unique_id(f"{kind}:{reference.casefold()}")
                 self._abort_if_unique_id_configured()
@@ -32,5 +34,5 @@ class PudoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="user", data_schema=vol.Schema({
             vol.Required(CONF_REFERENCE_TYPE, default="waybill"): vol.In({
                 "waybill": "Shipment waybill", "tracking_reference": "Parcel barcode"}),
-            vol.Required(CONF_REFERENCE): str,
+            vol.Optional(CONF_REFERENCE, default=""): str,
         }), errors=errors)

@@ -3,8 +3,16 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 let Card;
 let confirmed = true;
-vm.runInNewContext(readFileSync('www/pudo/pudo-tracking-card.js', 'utf8'), {
-  HTMLElement: class {}, window: { confirm: () => confirmed },
+const cardSource = readFileSync('custom_components/pudo/www/pudo-tracking-card.js', 'utf8');
+assert.equal(cardSource, readFileSync('www/pudo/pudo-tracking-card.js', 'utf8'));
+const cardWindow = { confirm: () => confirmed };
+function element() {
+  return { children: [], append(...children) { this.children.push(...children); },
+    replaceChildren() { this.children = []; }, get childNodes() { return this.children; },
+    setAttribute() {}, addEventListener() {} };
+}
+vm.runInNewContext(cardSource, {
+  HTMLElement: class {}, window: cardWindow, document: { createElement: element },
   customElements: { get: () => false, define: (_, value) => { Card = value; } },
 });
 async function run(result, admin = true) {
@@ -30,6 +38,27 @@ async function run(result, admin = true) {
   return { nodes, calls };
 }
 (async () => {
+  assert.equal(cardWindow.customCards[0].preview, true);
+  const display = new Card();
+  const container = element();
+  display.shadowRoot = { querySelector: () => container };
+  display.hass = { states: {
+    'sensor.example_status': { state: 'collected', attributes: { pudo_role: 'status', pudo_reference: 'EXAMPLE', collection_hub: 'JNB', delivery_hub: 'PTA' } },
+    'sensor.example_latest_event': { state: 'collected', attributes: { pudo_role: 'latest_event', pudo_reference: 'EXAMPLE', location: 'JNB' } },
+  }, user: { is_admin: false } };
+  assert.match(container.children[0].children[1].textContent, /Location: JNB/);
+  assert.match(container.children[0].children[1].textContent, /Collection Hub: JNB/);
+  assert.match(container.children[0].children[1].textContent, /Delivery Hub: PTA/);
+  display.preview = true;
+  await display._track();
+  await display._remove({}, {});
+  // Loading the automatic module after a legacy manual resource must upgrade it.
+  class LegacyCard {}
+  vm.runInNewContext(cardSource, {
+    HTMLElement: class {}, window: { customCards: [{ type: 'pudo-tracking-card' }] },
+    customElements: { get: () => LegacyCard },
+  });
+  assert.equal(new LegacyCard()._formatStatus('at-hub'), 'At Hub');
   let r = await run({ type: 'create_entry' });
   assert.equal(r.calls[1][2].reference, 'ABC');
   assert.equal(r.nodes.input.value, '');

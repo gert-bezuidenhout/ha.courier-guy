@@ -5,11 +5,20 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import PudoClient
 from .const import CONF_REFERENCE, CONF_REFERENCE_TYPE
 from .coordinator import PudoCoordinator
+from .frontend import async_register_frontend
 
 PLATFORMS = [Platform.SENSOR]
 
 
+async def async_setup(hass, config):
+    """Register the bundled frontend once, independently of shipment polling."""
+    await async_register_frontend(hass)
+    return True
+
+
 async def async_setup_entry(hass, entry):
+    if not entry.data.get(CONF_REFERENCE):
+        return True
     client = PudoClient(async_get_clientsession(hass), entry.data[CONF_REFERENCE],
                         entry.data[CONF_REFERENCE_TYPE])
     coordinator = PudoCoordinator(hass, entry, client)
@@ -20,4 +29,6 @@ async def async_setup_entry(hass, entry):
 
 
 async def async_unload_entry(hass, entry):
+    if not entry.data.get(CONF_REFERENCE):
+        return True
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
