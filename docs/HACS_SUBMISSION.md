@@ -1,22 +1,27 @@
 # Marketplace catalogue submission
 
+Status: prepared; not yet submitted or accepted. Custom-repository installation is still required.
+
 Repository: https://github.com/gert-bezuidenhout/ha.courier-guy
+Category: integration
 
-Category: integration.
+Add `gert-bezuidenhout/ha.courier-guy` alphabetically to the `integration` file in a branch created from `master` in the owner's fork of [hacs/default](https://github.com/hacs/default). Allow maintainer edits.
 
-Catalogue submission is authorised and being prepared. The repository is not yet accepted into the default catalogue; users must continue to add it as a custom repository until acceptance.
+Suggested PR title: Add gert-bezuidenhout/ha.courier-guy
 
-## Publication requirements
+The following body records verified automated checks and release publication. It does not claim live-device testing.
 
-- Public, active repository with README, description, topics and Issues enabled.
-- MIT licence recognised by GitHub.
-- Integration manifest, hacs.json and bundled brand/icon.png.
-- South Africa declared with country: ZA in the released hacs.json.
-- Passing HACS Action without ignored checks and passing Hassfest.
-- Full GitHub release 0.5.3, published only after validation succeeds.
+## Checklist
 
-## Submit
+- [x] I've read the [publishing documentation](https://hacs.xyz/docs/publish/start).
+- [x] I've added the [HACS action](https://hacs.xyz/docs/publish/action) to my repository.
+- [x] (For integrations only) I've added the [hassfest action](https://developers.home-assistant.io/blog/2020/04/16/hassfest/) to my repository.
+- [x] The actions are passing without any disabled checks in my repository.
+- [x] I've added a link to the action run on my repository below in the links section.
+- [x] I've created a new release of the repository after the validation actions were run successfully.
 
-Follow the [HACS inclusion requirements](https://hacs.xyz/docs/publish/include/) and the current pull-request template in [hacs/default](https://github.com/hacs/default). Add gert-bezuidenhout/ha.courier-guy alphabetically to the integration list on a branch in the owner's fork, allowing maintainer edits. Include the release and successful validation-run links.
+## Links
 
-Automated validation does not establish live-device testing. Do not claim fresh-install or live-service verification unless it has been performed separately.
+Link to current release: https://github.com/gert-bezuidenhout/ha.courier-guy/releases/tag/0.5.3
+Link to successful HACS action (without the `ignore` key): https://github.com/gert-bezuidenhout/ha.courier-guy/actions/runs/44285027973/job/134735365126
+Link to successful hassfest action (if integration): https://github.com/gert-bezuidenhout/ha.courier-guy/actions/runs/44285027973/job/134735365383
