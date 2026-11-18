@@ -1,4 +1,5 @@
 {
   "name": "The Courier Guy / PUDO",
-  "homeassistant": "2026.3.0"
+  "homeassistant": "2026.3.0",
+  "country": "ZA"
 }
