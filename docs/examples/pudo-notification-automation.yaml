@@ -11,7 +11,6 @@ actions:
         {%- set status = event.get('latest_event') or event.get('status') or 'unknown' -%}
         {%- set location = (event.get('location') or '') | trim -%}
         {%- set detail = (event.get('message') or '') | trim -%}
-        {%- set timestamp = as_datetime(event.get('date'), none) -%}
         {%- set phrases = {
           'submitted': 'has been registered',
           'deposit-pending': 'is awaiting drop-off',
@@ -45,9 +44,6 @@ actions:
           Parcel {{ event.reference }} {{ phrase }}{% if location and not hub_status %} ({{ location }}){% endif %}.
           {% if detail and detail | lower | trim(' .!') not in redundant %}
             {{ detail.rstrip('.!') }}.
-          {% endif %}
-          {% if timestamp %}
-            Last update: {{ as_local(timestamp).strftime('%d %b %Y at %H:%M') }}.
           {% endif %}
         {%- endset -%}
         {{ notification.split() | join(' ') }}
