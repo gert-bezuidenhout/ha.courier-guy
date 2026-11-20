@@ -7,16 +7,50 @@ conditions: []
 actions:
   - variables:
       notification_message: >-
-        {% set event = trigger.event.data %}
-        {% set timestamp = as_datetime(event.get('date'), none) %}
-        Parcel {{ event.reference }}:
-        {{ (event.get('latest_event') or event.get('status') or 'unknown')
-           | replace('-', ' ') | replace('_', ' ') | title }}.
-        {% if event.get('location') %}Location: {{ event.location }}.{% endif %}
-        {% if event.get('message') %}{{ event.message }}{% endif %}
-        {% if timestamp %}
-          Updated {{ as_local(timestamp).strftime('%d %b %Y at %H:%M') }}.
-        {% endif %}
+        {%- set event = trigger.event.data -%}
+        {%- set status = event.get('latest_event') or event.get('status') or 'unknown' -%}
+        {%- set location = (event.get('location') or '') | trim -%}
+        {%- set detail = (event.get('message') or '') | trim -%}
+        {%- set timestamp = as_datetime(event.get('date'), none) -%}
+        {%- set phrases = {
+          'submitted': 'has been registered',
+          'deposit-pending': 'is awaiting drop-off',
+          'customer-deposited': 'has been dropped off',
+          'collected': 'has been collected',
+          'at-hub': 'has arrived at the hub',
+          'at-destination-hub': 'has arrived at the destination hub',
+          'in-transit': 'is in transit',
+          'delivery-assigned': 'has been assigned to a delivery driver',
+          'out-for-delivery': 'is out for delivery',
+          'delivered': 'has been delivered',
+          'cancelled': 'has been cancelled'
+        } -%}
+        {%- set plain_status = status | replace('-', ' ') | replace('_', ' ') | lower -%}
+        {%- set phrase = phrases.get(status, 'has a tracking update: ' ~ plain_status) -%}
+        {%- set hub_status = status in ['at-hub', 'at-destination-hub'] and location -%}
+        {%- if hub_status -%}
+          {%- set phrase = 'has arrived at the ' ~ location ~ (' destination hub' if status == 'at-destination-hub' else ' hub') -%}
+        {%- endif -%}
+        {%- set redundant = [
+          plain_status,
+          'at ' ~ location | lower ~ ' hub',
+          'at ' ~ location | lower,
+          'at hub',
+          'at destination hub',
+          'out for delivery',
+          'delivered',
+          'collected'
+        ] -%}
+        {%- set notification -%}
+          Parcel {{ event.reference }} {{ phrase }}{% if location and not hub_status %} ({{ location }}){% endif %}.
+          {% if detail and detail | lower | trim(' .!') not in redundant %}
+            {{ detail.rstrip('.!') }}.
+          {% endif %}
+          {% if timestamp %}
+            Last update: {{ as_local(timestamp).strftime('%d %b %Y at %H:%M') }}.
+          {% endif %}
+        {%- endset -%}
+        {{ notification.split() | join(' ') }}
   - action: script.notification_all
     data:
       message: "{{ notification_message }}"
